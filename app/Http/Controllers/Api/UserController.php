@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Models\product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Storage;
+use DB;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -24,6 +28,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
+            'org_password' => 'required',
             'password' => 'required',
             'c_password' => 'required|same:password',
         ]);
@@ -155,7 +160,7 @@ class UserController extends Controller
         $product->publish = $request->published;
         if ($product->save())
             return response()->json([
-                'message' => 'Product Updated Successfully !!'
+                'message' => 'Published Successfully !!'
             ]);
     }
 
@@ -203,5 +208,73 @@ class UserController extends Controller
             'message' => 'User Updated Successfully !!',
             'User' => $update,
         ]);
+    }
+
+
+    public function readCsv(Request $request)
+    {
+        $data = [];
+        $file = $request->file('file');
+        $path = $file->store('temp');
+        $reader = IOFactory::createReaderForFile(storage_path('app/' . $path));
+        $spreadsheet = $reader->load(storage_path('app/' . $path));
+        $worksheet = $spreadsheet->getActiveSheet();
+        $worksheetArray = $worksheet->toArray();
+        array_shift($worksheetArray);
+        foreach ($worksheetArray as $key => $value) {
+            $worksheet = $spreadsheet->getActiveSheet();
+            $drawing = $worksheet->getDrawingCollection()[$key];
+            $zipReader = fopen($drawing->getPath(), 'r');
+            $imageContents = '';
+            while (!feof($zipReader)) {
+                $imageContents .= fread($zipReader, 1024);
+            }
+            fclose($zipReader);
+            $extension = $drawing->getExtension();
+            $file_name = str_replace(' ', '_', $drawing->getName()) . '.' . $drawing->getExtension();
+            Storage::put('public/images/' . '/'  . '/' . $file_name, file_get_contents($drawing->getPath()));
+            $data[] = [
+                'image' => $file_name,
+                'description' => $value[2],
+                'name' => $value[2],
+                'title' => $value[2],
+                'tag' => $value[2],
+                'embed_code' => '',
+                'publish' => 0,
+            ];
+        }
+
+        product::insert($data);
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
+
+    public function get_users_statisticks()
+    {
+        $data = User::selectRaw('COUNT(*) as count, YEAR(created_at) year, MONTHNAME(created_at) month')
+            ->groupBy('year', 'month')
+            ->get()->toArray();
+
+        return response()->json([
+            'get_users_statisticks' => $data
+        ]);
+    }
+
+    public function forget_password(Request $request)
+    {
+        $forget_password = User::where('email', $request->email)
+            ->update(['password' => bcrypt($request['password']), 'org_password' => $request['password']]);
+        if ($forget_password == 1) {
+            return response()->json([
+                'Message' => 'Password Reset Successfully !!'
+            ]);
+        } else {
+            return response()->json([
+                'Message' => 'Oops !! Somthing went wrong with email..'
+            ]);
+        }
     }
 }

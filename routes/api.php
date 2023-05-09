@@ -30,8 +30,11 @@ Route::get('get-products', [UserController::class, 'getProducts']);
 Route::get('get_counts/', [UserController::class, 'getCounts']);
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/csv_file', [UserController::class, 'readCsv']);
 Route::delete('delete-products/{id}', [UserController::class, 'deleteProducts']);
 Route::post('edit-products/{id}', [UserController::class, 'editProducts']);
+Route::get('get_users_statisticks', [UserController::class, 'get_users_statisticks']);
+Route::post('forget-password', [UserController::class, 'forget_password']);
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::post('user-logout', [UserController::class, 'logout']);

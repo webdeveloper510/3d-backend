@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'org_password',
     ];
 
     /**
@@ -43,10 +44,8 @@ class User extends Authenticatable
     ];
 
 
-    public function role() {
+    public function role()
+    {
         return $this->hasOne(Role::class);
     }
-
-
-    
 }
