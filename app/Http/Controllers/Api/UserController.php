@@ -251,17 +251,44 @@ class UserController extends Controller
         ]);
     }
 
-
     public function get_users_statisticks()
     {
-        $data = User::selectRaw('COUNT(*) as count, YEAR(created_at) year, MONTHNAME(created_at) month')
-            ->groupBy('year', 'month')
-            ->get()->toArray();
+        $users = User::select('id', 'created_at')
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('m');
+            });
 
-        return response()->json([
-            'get_users_statisticks' => $data
-        ]);
+        $usermcount = [];
+        $userArr = [];
+
+        foreach ($users as $key => $value) {
+            $usermcount[(int)$key] = count($value);
+        }
+
+        $month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        for ($i = 1; $i <= 12; $i++) {
+            if (!empty($usermcount[$i])) {
+                $userArr[$i]['count'] = $usermcount[$i];
+            } else {
+                $userArr[$i]['count'] = 0;
+            }
+            $userArr[$i]['month'] = $month[$i - 1];
+        }
+
+        return response()->json(array_values($userArr));
     }
+    // public function get_users_statisticks()
+    // {
+    //     $data = User::selectRaw('COUNT(*) as count, YEAR(created_at) year, MONTHNAME(created_at) month')
+    //         ->groupBy('year', 'month')
+    //         ->get()->toArray();
+
+    //     return response()->json([
+    //         'get_users_statisticks' => $data
+    //     ]);
+    // }
 
     public function forget_password(Request $request)
     {
