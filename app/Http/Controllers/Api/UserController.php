@@ -28,7 +28,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'org_password' => 'required',
+            // 'org_password' => 'required',
             'password' => 'required',
             'c_password' => 'required|same:password',
         ]);
@@ -38,6 +38,7 @@ class UserController extends Controller
             ], 401);
         }
         $input = $request->all();
+        $input['org_password'] = $input['password'];
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
         $success['token'] =  $user->createToken('threeApp')->accessToken;
