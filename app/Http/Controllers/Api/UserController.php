@@ -90,7 +90,9 @@ class UserController extends Controller
             'tag' => 'required',
             'description' => 'required',
             'embed_code' => 'required',
-            'image' => 'required'
+            'image' => 'required',
+            'publish' => 'required',
+            'gallery_type' => 'required'
         ]);
 
 
@@ -113,7 +115,8 @@ class UserController extends Controller
         $product->description = $request->description;
         $product->embed_code = $request->embed_code;
         $product->image = $filename;
-        $product->publish = $request->published;
+        $product->publish = $request->publish;
+        $product->gallery_type = $request->gallery_type;
         $product->save();
         return response()->json(['success' => $product], $this->successStatus);
     }
