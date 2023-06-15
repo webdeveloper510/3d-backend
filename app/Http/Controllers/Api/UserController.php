@@ -91,7 +91,6 @@ class UserController extends Controller
             'description' => 'required',
             'embed_code' => 'required',
             'image' => 'required',
-            'publish' => 'required',
             'gallery_type' => 'required'
         ]);
 
@@ -121,11 +120,32 @@ class UserController extends Controller
         return response()->json(['success' => $product], $this->successStatus);
     }
 
-    public function getProducts()
+
+    public function getProducts($galleryType)
     {
-        $product_information = product::all();
-        return response()->json(['products' => $product_information], $this->successStatus);
+        // http://localhost/3d-backend/api/get-products/'gallery_type-3'
+
+        $productInformation = product::where('gallery_type', $galleryType)->get();
+
+        return response()->json([
+            'products' => $productInformation
+        ], 200);
     }
+
+
+    // public function getProducts($galleryId)
+    // {
+    //     echo "<pre>";
+    //     print_r($galleryId);
+    //     die;
+    // $galleryOne = $request->query('gallery_one');
+    // $galleryTwo = $request->query('gallery_two');
+    // $galleryThree = $request->query('gallery_three');
+
+    // $productInformation = Product::whereIn('gallery_type', [$galleryOne, $galleryTwo, $galleryThree])->get();
+
+    // return response()->json(['products' => $productInformation], 200);
+    // }
 
     public function deleteProducts($id)
     {

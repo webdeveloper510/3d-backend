@@ -26,7 +26,7 @@ Route::post('edit-publish/{id}', [UserController::class, 'editPublished']);
 Route::post('edit-grant/{id}', [UserController::class, 'editGrant']);
 Route::delete('delete-user/{id}', [UserController::class, 'deleteUser']);
 Route::post('add-product', [UserController::class, 'addProduct']);
-Route::get('get-products', [UserController::class, 'getProducts']);
+Route::get('get-products/{galleryType}', [UserController::class, 'getProducts']);
 Route::get('get_counts/', [UserController::class, 'getCounts']);
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
