@@ -265,6 +265,7 @@ class UserController extends Controller
                 'tag' => $value[2],
                 'embed_code' => '',
                 'publish' => 0,
+                'gallery_type' => $request->gallery_type,
             ];
         }
 
