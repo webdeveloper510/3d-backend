@@ -40,6 +40,7 @@ class UserController extends Controller
         $input = $request->all();
         $input['org_password'] = $input['password'];
         $input['password'] = bcrypt($input['password']);
+        $input['role'] = 'user';
         $user = User::create($input);
         $success['token'] =  $user->createToken('threeApp')->accessToken;
         $success['name'] =  $user->name;
@@ -123,8 +124,6 @@ class UserController extends Controller
 
     public function getProducts($galleryType)
     {
-        // http://localhost/3d-backend/api/get-products/'gallery_type-3'
-
         $productInformation = product::where('gallery_type', $galleryType)->get();
 
         return response()->json([
@@ -199,7 +198,7 @@ class UserController extends Controller
         $users->grant = $request->grant;
         if ($users->save())
             return response()->json([
-                'message' => 'User Grant  Successfully !!'
+                'message' => 'User Grant Successfully !!'
             ]);
     }
 
@@ -233,7 +232,6 @@ class UserController extends Controller
             'User' => $update,
         ]);
     }
-
 
     public function readCsv(Request $request)
     {
